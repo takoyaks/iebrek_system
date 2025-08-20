@@ -99,8 +99,6 @@ function AdminLogbook() {
       </button>
     </div>
 
-    <h1 className="text-2xl font-bold text-center mb-6">Report</h1>
-
     {/* Filter + Download Section */}
     <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
       <div className="flex items-center gap-2 relative">
@@ -126,7 +124,7 @@ function AdminLogbook() {
               maxDate={new Date()}
             />
             <button
-              className="mt-2 px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm"
+              className="mt-2 px-3 py-1 bg-black text-white hover:bg-gray-500 rounded text-sm"
               onClick={() => setShowPicker(false)}
             >
               Close
@@ -162,10 +160,10 @@ function AdminLogbook() {
     </div>
 
     {/* Table */}
-    <div className="overflow-x-auto max-h-[400px] border  rounded-lg">
+    <div className="overflow-x-auto max-h-[600] border rounded-lg">
       <table className="table-auto w-full text-sm border-collapse">
         <thead className="sticky top-0 bg-white z-10 border-b">
-          <tr className="bg-black text-white">
+          <tr className="bg-black text-black bg-white ">
             <th className="px-3 py-2 text-left font-semibold">Name</th>
             <th className="px-3 py-2 text-left font-semibold">Phone</th>
             <th className="px-3 py-2 text-left font-semibold">Email</th>
@@ -181,7 +179,7 @@ function AdminLogbook() {
         </thead>
         <tbody>
           {filteredData.map((row, i) => (
-            <tr key={i} className="border-b hover:bg-yellow-50">
+            <tr key={i} className="border-b hover:bg-white hover:text-black transition-colors duration-200 cursor-pointer">
               <td className="px-3 py-2">{row.name}</td>
               <td className="px-3 py-2">{row.phone}</td>
               <td className="px-3 py-2">{row.email}</td>
@@ -198,8 +196,6 @@ function AdminLogbook() {
         </tbody>
       </table>
     </div>
-
-    {/* Summary Counts */}
     <div className="flex justify-end gap-2 mt-3">
       <span className="px-3 py-1 rounded-full text-white bg-blue-600 text-xs font-semibold">
         Male: {maleCount}

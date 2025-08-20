@@ -9,8 +9,8 @@ export default function Sidebar() {
     const pathname = usePathname();
     const links = [
         { href: "/dashboard", label: "Dashboard" },
+        { href: "/dtr", label: "DTR Builder" },
         { href: "/logbook-report", label: "Logbook Report" },
-        { href: "/dashboard/reports", label: "Reports" },
         { href: "/dashboard/settings", label: "Settings" },
     ];
 

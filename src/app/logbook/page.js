@@ -509,7 +509,7 @@ export default function DigitalLogbook() {
   {/* Logos */}
   <div className="flex flex-wrap justify-center items-center gap-4 mt-6">
     <img src="/images/bagong-pilipinas.png" alt="Bagong Pilipinas" className="h-16" />
-    <a href="/admin"><img src="/images/DICT-Logo-icon_only.png" alt="DICT Logo" className="h-16" /></a>
+    <a href="/"><img src="/images/DICT-Logo-icon_only.png" alt="DICT Logo" className="h-16" /></a>
     <img src="/images/dtc_CATANDUANES.png" alt="DTC Catanduanes" className="h-20" />
     <img src="/images/ilcdb logo.png" alt="ILCDB Logo" className="h-16" />
     <img src="/images/egov.png" alt="eGov Logo" className="h-16" />

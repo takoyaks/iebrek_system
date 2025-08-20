@@ -3,11 +3,12 @@
 import DashboardLayout from "@/components/dashboard/Layout";
 import DashboardSidebar from "@/components/dashboard/Sidebar";
 import DashboardHeader from "@/components/dashboard/Header";
-import Admin_logbook_report from "@/components/admin_logbook/page"; // Adjusted import path
+import Dtr_builder from "@/components/dtr_builder/main"; // Adjusted import path
 import { useAuth } from "@/app/provider";
 import { useRouter } from "next/navigation";
 
-export default function LogbookReport() {
+
+export default function Dashboard() {
     const { user, loading } = useAuth();
     const router = useRouter();
     if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -18,9 +19,9 @@ export default function LogbookReport() {
     return (
         <DashboardLayout
             sidebar={<DashboardSidebar />}
-            header={<DashboardHeader title="Logbook Report" />}
+            header={<DashboardHeader title="DTR Builder" />}
         >
-              <Admin_logbook_report />
+            <Dtr_builder />
         </DashboardLayout>
     );
 }
