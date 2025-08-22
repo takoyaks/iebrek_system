@@ -11,7 +11,7 @@ export default function Sidebar() {
         { href: "/dashboard", label: "Dashboard" },
         { href: "/dtr", label: "DTR Builder" },
         { href: "/logbook-report", label: "Logbook Report" },
-        { href: "/dashboard/settings", label: "Settings" },
+        { href: "/settings", label: "Settings" },
     ];
 
 return (

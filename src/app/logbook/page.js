@@ -1,7 +1,6 @@
-
 "use client";
 
-
+import LoadingScreen from "@/components/LoadingScreen";
 import { useState, useEffect } from "react";
 import { collection, getDocs, query, addDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -15,12 +14,7 @@ const ageOptions = [
   "50-69",
   "60 and above",
 ];
-const genderOptions = [
-  "Male",
-  "Female",
-  "Other",
-  "Prefer not to say",
-];
+const genderOptions = ["Male", "Female", "Other", "Prefer not to say"];
 const provinceOptions = [
   "Catanduanes",
   "Albay",
@@ -60,7 +54,6 @@ const sectorOptions = [
   "OTHERS",
 ];
 
-
 export default function DigitalLogbook() {
   // Table state
   const [entries, setEntries] = useState([]);
@@ -88,33 +81,48 @@ export default function DigitalLogbook() {
   const [timer, setTimer] = useState("");
   const [date, setDate] = useState("");
 
+  // NEW: Loading screen state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+
   // Timer and date effect
   useEffect(() => {
     function updateTimer() {
       const now = new Date();
       let hours = now.getHours();
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      const seconds = String(now.getSeconds()).padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
       hours = hours % 12;
       hours = hours ? hours : 12;
-      hours = String(hours).padStart(2, '0');
+      hours = String(hours).padStart(2, "0");
       setTimer(`${hours}:${minutes}:${seconds} ${ampm}`);
     }
     function updateDate() {
       const now = new Date();
-      setDate(now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));
+      setDate(
+        now.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      );
     }
     updateTimer();
     updateDate();
     const timerId = setInterval(updateTimer, 1000);
     const dateId = setInterval(updateDate, 1000);
-    return () => { clearInterval(timerId); clearInterval(dateId); };
+    return () => {
+      clearInterval(timerId);
+      clearInterval(dateId);
+    };
   }, []);
 
   // Dynamic field visibility
   const showOtherGender = form.gender === "Other";
-  const showOtherProvince = form.province === "Others" || (form.province && !provinceOptions.includes(form.province));
+  const showOtherProvince =
+    form.province === "Others" ||
+    (form.province && !provinceOptions.includes(form.province));
   const showMunicipality = form.province === "Catanduanes";
   const showOtherMunicipality = !showMunicipality;
   const showOtherSector = form.sector === "OTHERS";
@@ -122,23 +130,30 @@ export default function DigitalLogbook() {
   // Handle form changes
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
-    setForm(f => ({ ...f, [name]: type === "checkbox" ? checked : value }));
+    setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
   }
 
   // Validation helpers
   function validate() {
     if (!form.name) return "Please enter your name.";
-    if (form.phone && !/^\d{11}$/.test(form.phone)) return "Please enter a valid 11-digit phone number.";
-    if (form.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) return "Please enter a valid email address.";
+    if (form.phone && !/^\d{11}$/.test(form.phone))
+      return "Please enter a valid 11-digit phone number.";
+    if (form.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email))
+      return "Please enter a valid email address.";
     if (!form.age) return "Please select your age group.";
     if (!form.gender) return "Please select your gender.";
-    if (showOtherGender && !form.otherGender) return "Please specify your gender.";
+    if (showOtherGender && !form.otherGender)
+      return "Please specify your gender.";
     if (!form.province) return "Please select your province.";
-    if (showOtherProvince && !form.otherProvince) return "Please specify your province.";
-    if (showMunicipality && !form.municipality) return "Please select your municipality.";
-    if (showOtherMunicipality && !form.otherMunicipality) return "Please specify your municipality.";
+    if (showOtherProvince && !form.otherProvince)
+      return "Please specify your province.";
+    if (showMunicipality && !form.municipality)
+      return "Please select your municipality.";
+    if (showOtherMunicipality && !form.otherMunicipality)
+      return "Please specify your municipality.";
     if (!form.sector) return "Please select your sector.";
-    if (showOtherSector && !form.otherSector) return "Please specify your sector.";
+    if (showOtherSector && !form.otherSector)
+      return "Please specify your sector.";
     if (!form.purpose) return "Please enter your purpose.";
     if (!form.agree) return "You must consent to data collection.";
     return null;
@@ -149,54 +164,65 @@ export default function DigitalLogbook() {
     e.preventDefault();
     setError("");
     setSuccess(false);
+
+    const formEl = e.target; // reference to form element
+    const submitBtn = formEl.querySelector("button[type='submit']");
+
+    if (isSubmitting) return; // prevent double submit
+    setIsSubmitting(true);
+    submitBtn.disabled = true;
+
     const err = validate();
     if (err) {
       setError(err);
+      submitBtn.disabled = false;
+      setIsSubmitting(false);
       return;
     }
 
-    // Compose values as in the provided JS
+    // Show loading screen
+    setShowLoading(true);
+
+    // Prepare values
     const name = form.name.trim();
     const phone = form.phone.trim();
     const email = form.email.trim();
-    let gender = "";
-    if (form.gender === "Other" && form.otherGender.trim() !== "") {
-      gender = form.otherGender.trim();
-    } else {
-      gender = form.gender;
-    }
+    let gender =
+      form.gender === "Other" && form.otherGender.trim() !== ""
+        ? form.otherGender.trim()
+        : form.gender;
+
     let municipality = "";
     let province = "";
     if (form.province !== "Catanduanes") {
       municipality = form.otherMunicipality.trim();
-      if (form.province === "Others" && form.otherProvince.trim() !== "") {
-        province = form.otherProvince.trim();
-      } else {
-        province = form.province;
-      }
+      province =
+        form.province === "Others" && form.otherProvince.trim() !== ""
+          ? form.otherProvince.trim()
+          : form.province;
     } else {
       municipality = form.municipality;
       province = form.province;
     }
-    let sector = "";
-    if (form.sector === "OTHERS" && form.otherSector.trim() !== "") {
-      sector = form.otherSector.trim();
-    } else {
-      sector = form.sector;
-    }
+
+    let sector =
+      form.sector === "OTHERS" && form.otherSector.trim() !== ""
+        ? form.otherSector.trim()
+        : form.sector;
+
     const purpose = form.purpose.trim();
     const age_group = form.age;
 
-    // Prevent duplicate entries (same name, purpose, same day)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
 
     try {
-      // Query for existing entry
+      // ✅ Check duplicates
       const q = query(collection(db, "catanduanes_logbook_entries"));
       const querySnapshot = await getDocs(q);
+
       let duplicateFound = false;
       querySnapshot.forEach((doc) => {
         const data = doc.data();
@@ -210,12 +236,13 @@ export default function DigitalLogbook() {
           duplicateFound = true;
         }
       });
+
       if (duplicateFound) {
         setError("Please change the purpose to submit a new entry.");
         return;
       }
 
-      // Add to Firestore
+      // ✅ Add new entry
       await addDoc(collection(db, "catanduanes_logbook_entries"), {
         name,
         phone,
@@ -230,33 +257,27 @@ export default function DigitalLogbook() {
       });
 
       setSuccess(true);
-      setForm({
-        name: "",
-        phone: "",
-        email: "",
-        age: "",
-        gender: "",
-        otherGender: "",
-        province: "Catanduanes",
-        otherProvince: "",
-        municipality: "Virac",
-        otherMunicipality: "",
-        sector: "",
-        otherSector: "",
-        purpose: "",
-        agree: false,
-      });
-      // Optionally reload entries
-      // window.location.reload();
+
+      // ✅ Reset form UI
+      formEl.classList.remove("was-validated");
+      formEl.reset();
+
+      // Optional reload
+      location.reload();
     } catch (error) {
-      setError("Failed to submit the form. Please try again.");
-      // eslint-disable-next-line no-console
       console.error("Error adding document: ", error);
+      setError("Failed to submit the form. Please try again.");
+    } finally {
+      // Hide loading and enable submit
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setShowLoading(false);
+      if (submitBtn) submitBtn.disabled = false;
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-[#f8f9fa] p-0" style={{backgroundImage: 'url(/images/buwan_wika_bg_1.png)', backgroundSize: 'cover', backgroundPosition: 'center', overflow: 'hidden'}}>
+    <main className="min-h-screen flex flex-col items-center justify-center bg-[#f8f9fa] p-0" style={{backgroundImage: 'url(/images/logbook_bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', overflow: 'hidden'}}>
       {/* Timer and Date */}
       <div className="absolute left-0 top-0 mt-5 ms-1 z-10">
         <h1 className="text-white text-4xl font-bold" style={{textShadow: '0 0 8px #000'}}>{timer}</h1>
@@ -265,6 +286,7 @@ export default function DigitalLogbook() {
 
 <div className="min-h-screen flex flex-col items-center justify-center p-4">
   <div className="w-full max-w-5xl bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg p-6 overflow-hidden">
+  {showLoading && <LoadingScreen />}
     <form onSubmit={handleSubmit} className="space-y-6">
       <h1 className="text-center text-3xl font-bold text-gray-700">Digital Logbook</h1>
 

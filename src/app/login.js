@@ -51,7 +51,7 @@ export default function Login() {
         className="w-full max-w-sm p-8 bg-neutral-50 dark:bg-neutral-900 rounded-lg shadow-md border border-neutral-200 dark:border-neutral-800 flex flex-col gap-6"
         aria-label="Login form"
       >
-        <h1 className="text-2xl font-bold text-center mb-2">Sign in to iebrek system</h1>
+        <h1 className="text-2xl font-bold text-center mb-2">Sign in to DICT R5 Catanduanes System</h1>
         <p className="text-neutral-500 text-center text-sm mb-4">Testing</p>
         <input
           type="email"
