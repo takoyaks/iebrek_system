@@ -131,6 +131,7 @@ export default function DigitalLogbook() {
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
     setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
+    setSuccess(false); // reset success on any input change 
   }
 
   // Validation helpers
@@ -158,6 +159,7 @@ export default function DigitalLogbook() {
     if (!form.agree) return "You must consent to data collection.";
     return null;
   }
+
 
   // Handle form submit
   async function handleSubmit(e) {
@@ -256,14 +258,32 @@ export default function DigitalLogbook() {
         timestamp: new Date(),
       });
 
-      setSuccess(true);
+
 
       // ✅ Reset form UI
+
+      setForm({
+        name: "",
+        phone: "",
+        email: "",
+        age: "",
+        gender: "",
+        otherGender: "",
+        province: "Catanduanes",
+        otherProvince: "",
+        municipality: "Virac",
+        otherMunicipality: "",
+        sector: "",
+        otherSector: "",
+        purpose: "",
+        agree: false,
+      });
+      setSuccess(true);
       formEl.classList.remove("was-validated");
       formEl.reset();
-
+      
       // Optional reload
-      location.reload();
+      // location.reload();
     } catch (error) {
       console.error("Error adding document: ", error);
       setError("Failed to submit the form. Please try again.");
@@ -287,7 +307,8 @@ export default function DigitalLogbook() {
 <div className="min-h-screen flex flex-col items-center justify-center p-4">
   <div className="w-full max-w-5xl bg-white/70 backdrop-blur-lg rounded-2xl shadow-lg p-6 overflow-hidden">
   {showLoading && <LoadingScreen />}
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6" >
+      {/* Title */}
       <h1 className="text-center text-3xl font-bold text-gray-700">Digital Logbook</h1>
 
       {/* Two Column Grid */}
@@ -515,8 +536,15 @@ export default function DigitalLogbook() {
           </label>
         </div>
 
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-        {success && <p className="text-green-600 text-sm text-center">Thank you for signing in!</p>}
+          {error && (
+            <p className="text-red-500 text-base md:text-base text-center">{error}</p>
+          )}
+          {success && (
+            <p className="text-green-600 text-lg md:text-base text-center">
+              Thank you for signing in!
+            </p>
+          )}
+
 
         <button
           type="submit"
