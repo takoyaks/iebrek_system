@@ -43,6 +43,7 @@ const sectorOptions = [
   "PRIVATE",
   "WOMEN",
   "STUDENT",
+  "OFW",
   "PWDS",
   "OSY",
   "PDLS",
@@ -54,10 +55,26 @@ const sectorOptions = [
   "OTHERS",
 ];
 
+
+
+
+
+
 export default function DigitalLogbook() {
   // Table state
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [suggestions, setSuggestions] = useState([]);
+
+  // Suggested options
+  const options = [
+    "Forward Communication Letter",
+    "Inquiry",
+    "Forward Complaint",
+    "Seek for Assistance",
+    "Office Visit",
+  ];
 
   // Form state
   const [form, setForm] = useState({
@@ -127,12 +144,48 @@ export default function DigitalLogbook() {
   const showOtherMunicipality = !showMunicipality;
   const showOtherSector = form.sector === "OTHERS";
 
+  
   // Handle form changes
+// Handle form changes
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
-    setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
-    setSuccess(false); // reset success on any input change 
+
+    // Handle validation for purpose field
+    // Validation
+    if (name === "purpose") {
+      const trimmed = value.trim();
+      if (trimmed.length < 2) {
+        setError("Enter valid reason");
+      } else {
+        setError("");
+      }
+
+      // Show suggestions based on input
+      if (trimmed.length > 0) {
+        setSuggestions(
+          options.filter((opt) =>
+            opt.toLowerCase().includes(trimmed.toLowerCase())
+          )
+        );
+      } else {
+        setSuggestions([]);
+      }
+    }
+
+    // Update form state
+    setForm((f) => ({
+      ...f,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+
+    setSuccess(false); // reset success on any input change
   }
+
+  const handleSuggestionClick = (text) => {
+    setForm((f) => ({ ...f, purpose: text }));
+    setSuggestions([]);
+    setError("");
+  };
 
   // Validation helpers
   function validate() {
@@ -186,9 +239,9 @@ export default function DigitalLogbook() {
     setShowLoading(true);
 
     // Prepare values
-    const name = form.name.trim();
+    const name = form.name.trim().toUpperCase();
     const phone = form.phone.trim();
-    const email = form.email.trim();
+    const email = form.email.trim().toUpperCase();
     let gender =
       form.gender === "Other" && form.otherGender.trim() !== ""
         ? form.otherGender.trim()
@@ -341,6 +394,7 @@ export default function DigitalLogbook() {
               pattern="[0-9]{11}"
               className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase text-black"
               value={form.phone}
+              autoComplete="off"
               onChange={handleChange}
             />
           </div>
@@ -503,19 +557,40 @@ export default function DigitalLogbook() {
             </div>
           )}
 
-          <div>
-            <label htmlFor="purpose" className="block text-sm font-semibold text-gray-700">Purpose</label>
-            <textarea
-              id="purpose"
-              name="purpose"
-              placeholder="Enter your purpose here"
-              rows={5}
-              className="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase text-black"
-              value={form.purpose}
-              onChange={handleChange}
-              required
-            />
-          </div>
+      <div>
+        <label
+          htmlFor="purpose"
+          className="block text-sm font-semibold text-gray-700"
+        >
+          Purpose
+        </label>
+        <textarea
+          id="purpose"
+          name="purpose"
+          placeholder="Enter your purpose here"
+          rows={5}
+          className={`w-full mt-1 p-2 border rounded-lg focus:ring-2 focus:outline-none uppercase text-black 
+            ${error ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`}
+          value={form.purpose}
+          onChange={handleChange}
+          autoComplete="auto"
+          required
+        />
+              {/* Suggestions dropdown */}
+      {suggestions.length > 0 && (
+        <ul className="absolute z-10 bg-white border border-gray-300  text-black  rounded-lg mt-1  shadow-lg max-h-40 overflow-y-auto">
+          {suggestions.map((s, idx) => (
+            <li
+              key={idx}
+              onClick={() => handleSuggestionClick(s)}
+              className="px-3 py-2 cursor-pointer hover:bg-blue-100"
+            >
+              {s}
+            </li>
+          ))}
+        </ul>
+      )}
+      </div>
         </div>
       </div>
 

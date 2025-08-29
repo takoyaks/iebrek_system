@@ -16,9 +16,9 @@ export const metadata = {
   title: "DICT Digital Logbook",
   description: "Developed by Kerbie Villanueva",
     icons: {
-          icon: "/favicon.ico",       // default
-          shortcut: "/favicon.ico",   // for browsers
-          apple: "/favicon.ico",      // for iOS
+          icon: "/favicon.png",       // default
+          shortcut: "/favicon.png",   // for browsers
+          apple: "/favicon.png",      // for iOS
     },
 };
 

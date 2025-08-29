@@ -14,7 +14,7 @@ export default function LoadingScreen() {
       renderer: "svg",
       loop: true,
       autoplay: true,
-      path: "/animations/loading.json", // ✅ load from public
+      path: "/animations/loadin_anim.json", // ✅ load from public
     });
 
     return () => instance.destroy();
